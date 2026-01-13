@@ -1,0 +1,17 @@
+---
+common_packages:
+  - git
+  - curl
+  - wget
+  - ca-certificates
+  - unzip
+  - tree
+  - jq
+  - build-essential
+  - python3
+  - python3-venv
+  - pipx
+  - ripgrep
+  - fd-find
+  - fzf
+  - htop

@@ -1,0 +1,28 @@
+---
+- name: Determine target user
+  ansible.builtin.set_fact:
+    shell_target_user: "{{ ansible_env.SUDO_USER | default(ansible_user_id) }}"
+
+- name: Lookup target user home
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ shell_target_user }}"
+
+- name: Ensure ~/bin exists
+  ansible.builtin.file:
+    path: "{{ getent_passwd[shell_target_user][4] }}/bin"
+    state: directory
+    mode: "0755"
+    owner: "{{ shell_target_user }}"
+    group: "{{ shell_target_user }}"
+
+- name: Ensure ~/bin is in PATH for bash
+  ansible.builtin.lineinfile:
+    path: "{{ getent_passwd[shell_target_user][4] }}/.bashrc"
+    line: 'export PATH="$HOME/bin:$PATH"'
+    regexp: '^export PATH="\$HOME/bin:\$PATH"$'
+    insertafter: EOF
+    create: true
+    owner: "{{ shell_target_user }}"
+    group: "{{ shell_target_user }}"
+    mode: "0644"

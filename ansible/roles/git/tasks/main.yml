@@ -1,0 +1,25 @@
+---
+- name: Gather installed package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Configure git user name
+  ansible.builtin.git_config:
+    name: user.name
+    value: "Sreyeesh Garimella"
+    scope: global
+  when: "'git' in ansible_facts.packages"
+
+- name: Configure git user email
+  ansible.builtin.git_config:
+    name: user.email
+    value: "sgarime1@gmail.com"
+    scope: global
+  when: "'git' in ansible_facts.packages"
+
+- name: Configure git default branch
+  ansible.builtin.git_config:
+    name: init.defaultBranch
+    value: "main"
+    scope: global
+  when: "'git' in ansible_facts.packages"

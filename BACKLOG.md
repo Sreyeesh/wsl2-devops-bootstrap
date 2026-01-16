@@ -1,7 +1,6 @@
 # Backlog
 
 ## Next
-- Ensure main stays stable, then create a long-lived dev branch for ongoing changes.
 - Add ansible-lint and a minimal CI workflow to validate idempotency and style.
 - Document variables and profiles (minimal vs full) in README.
 - Add SSH hardening role for client-only config and known_hosts pinning.
@@ -16,3 +15,4 @@
 ## Done
 - Add a devtools role to install optional CLIs (terraform, kubectl, awscli, azure-cli) behind feature flags.
 - Add a bootstrap script that installs Ansible and runs the playbook with sensible defaults.
+- Ensure main stays stable, then create a long-lived dev branch for ongoing changes.

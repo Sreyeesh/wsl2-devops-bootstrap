@@ -12,13 +12,19 @@ healthcheck script to verify the essentials.
 
 ## Quick Start
 
-1) Install Ansible if you do not already have it:
+1) Run the bootstrap script (installs Ansible if needed and runs the playbook):
+
+```bash
+./bootstrap.sh
+```
+
+2) Or install Ansible manually if you prefer:
 
 ```bash
 python3 -m pip install --user ansible
 ```
 
-2) Run the playbook:
+3) Run the playbook:
 
 ```bash
 ansible-playbook ansible/playbooks/wsl.yml

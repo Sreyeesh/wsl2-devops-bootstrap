@@ -1,0 +1,55 @@
+---
+- name: Determine target user
+  ansible.builtin.set_fact:
+    zsh_target_user: "{{ ansible_env.SUDO_USER | default(ansible_user_id) }}"
+
+- name: Lookup target user home
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ zsh_target_user }}"
+
+- name: Install zsh and dependencies
+  ansible.builtin.apt:
+    name:
+      - zsh
+      - git
+      - curl
+    state: present
+    update_cache: true
+
+- name: Ensure Oh My Zsh is installed
+  ansible.builtin.command: >
+    sh -c "curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+    | sh -s -- --unattended"
+  become: false
+  environment:
+    HOME: "{{ getent_passwd[zsh_target_user][4] }}"
+    RUNZSH: "no"
+    CHSH: "no"
+    KEEP_ZSHRC: "yes"
+  args:
+    creates: "{{ getent_passwd[zsh_target_user][4] }}/.oh-my-zsh"
+
+- name: Install powerlevel10k theme
+  ansible.builtin.git:
+    repo: https://github.com/romkatv/powerlevel10k.git
+    dest: "{{ getent_passwd[zsh_target_user][4] }}/.oh-my-zsh/custom/themes/powerlevel10k"
+    version: v1.20.0
+  become: false
+  environment:
+    HOME: "{{ getent_passwd[zsh_target_user][4] }}"
+
+- name: Set powerlevel10k theme in .zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ getent_passwd[zsh_target_user][4] }}/.zshrc"
+    regexp: '^ZSH_THEME='
+    line: 'ZSH_THEME="powerlevel10k/powerlevel10k"'
+    create: true
+    owner: "{{ zsh_target_user }}"
+    group: "{{ zsh_target_user }}"
+    mode: "0644"
+
+- name: Set zsh as default shell
+  ansible.builtin.user:
+    name: "{{ zsh_target_user }}"
+    shell: /usr/bin/zsh

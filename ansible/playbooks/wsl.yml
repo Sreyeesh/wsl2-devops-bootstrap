@@ -8,3 +8,4 @@
     - role: shell
     - role: devtools
     - role: neovim
+    - role: zsh

@@ -1,7 +1,7 @@
 # WSL2 DevOps Bootstrap
 
 A minimal Ansible-based bootstrap for WSL2 that installs baseline Linux tooling,
-configures Git defaults, and sets up a simple shell path. Includes a lightweight
+configures Git defaults, adds developer tools, sets up Neovim, and sets up a simple shell path. Includes a lightweight
 healthcheck script to verify the essentials.
 
 ## Requirements
@@ -35,6 +35,8 @@ python3 scripts/wsl_healthcheck.py
 - Installs baseline packages (git, curl, build tools, python3, pipx, rg, fd-find, fzf, etc.)
 - Sets global Git defaults (user.name, user.email, default branch)
 - Ensures `~/bin` exists and is on PATH for bash
+- Installs Node.js, npm, and the tree-sitter CLI
+- Installs Neovim, adds a starter config, and sets `EDITOR`/`VISUAL`
 
 ## Project Layout
 
@@ -42,11 +44,12 @@ python3 scripts/wsl_healthcheck.py
 - `ansible/roles/common` : baseline packages
 - `ansible/roles/git` : Git defaults
 - `ansible/roles/shell` : shell path setup
+- `ansible/roles/devtools` : developer tools (nodejs, npm, tree-sitter-cli)
+- `ansible/roles/neovim` : Neovim install and config
 - `scripts/wsl_healthcheck.py` : tool availability checks
 
 ## Notes
 
-- The `ansible/roles/devtools` role is scaffolded for future optional tools.
 - Inventory is local-only: `ansible/inventory/localhost.ini`.
 
 ## Backlog

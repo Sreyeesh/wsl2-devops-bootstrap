@@ -26,3 +26,14 @@
     owner: "{{ shell_target_user }}"
     group: "{{ shell_target_user }}"
     mode: "0644"
+
+- name: Ensure /usr/local/bin is in PATH for bash
+  ansible.builtin.lineinfile:
+    path: "{{ getent_passwd[shell_target_user][4] }}/.bashrc"
+    line: 'export PATH="/usr/local/bin:$PATH"'
+    regexp: '^export PATH="/usr/local/bin:\$PATH"$'
+    insertafter: EOF
+    create: true
+    owner: "{{ shell_target_user }}"
+    group: "{{ shell_target_user }}"
+    mode: "0644"

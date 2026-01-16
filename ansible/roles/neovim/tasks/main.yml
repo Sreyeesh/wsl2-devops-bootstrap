@@ -1,0 +1,61 @@
+---
+- name: Determine target user
+  ansible.builtin.set_fact:
+    neovim_target_user: "{{ ansible_env.SUDO_USER | default(ansible_user_id) }}"
+
+- name: Lookup target user home
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ neovim_target_user }}"
+
+- name: Install Neovim
+  ansible.builtin.apt:
+    name: neovim
+    state: present
+    update_cache: true
+
+- name: Ensure Neovim config directory exists
+  ansible.builtin.file:
+    path: "{{ getent_passwd[neovim_target_user][4] }}/.config/nvim"
+    state: directory
+    mode: "0755"
+    owner: "{{ neovim_target_user }}"
+    group: "{{ neovim_target_user }}"
+
+- name: Ensure Neovim undo directory exists
+  ansible.builtin.file:
+    path: "{{ getent_passwd[neovim_target_user][4] }}/.local/share/nvim/undo"
+    state: directory
+    mode: "0700"
+    owner: "{{ neovim_target_user }}"
+    group: "{{ neovim_target_user }}"
+
+- name: Install Neovim config
+  ansible.builtin.template:
+    src: init.lua.j2
+    dest: "{{ getent_passwd[neovim_target_user][4] }}/.config/nvim/init.lua"
+    mode: "0644"
+    owner: "{{ neovim_target_user }}"
+    group: "{{ neovim_target_user }}"
+
+- name: Set default editor to Neovim
+  ansible.builtin.lineinfile:
+    path: "{{ getent_passwd[neovim_target_user][4] }}/.bashrc"
+    line: 'export EDITOR="nvim"'
+    regexp: '^export EDITOR="nvim"$'
+    insertafter: EOF
+    create: true
+    owner: "{{ neovim_target_user }}"
+    group: "{{ neovim_target_user }}"
+    mode: "0644"
+
+- name: Set default visual editor to Neovim
+  ansible.builtin.lineinfile:
+    path: "{{ getent_passwd[neovim_target_user][4] }}/.bashrc"
+    line: 'export VISUAL="nvim"'
+    regexp: '^export VISUAL="nvim"$'
+    insertafter: EOF
+    create: true
+    owner: "{{ neovim_target_user }}"
+    group: "{{ neovim_target_user }}"
+    mode: "0644"

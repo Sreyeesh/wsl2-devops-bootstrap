@@ -1,0 +1,114 @@
+---
+- name: Determine target user
+  ansible.builtin.set_fact:
+    devtools_target_user: "{{ ansible_env.SUDO_USER | default(ansible_user_id) }}"
+
+- name: Lookup target user home
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ devtools_target_user }}"
+
+- name: Install tree-sitter build dependencies
+  ansible.builtin.apt:
+    name:
+      - build-essential
+      - make
+      - gcc
+      - g++
+      - python3
+      - pkg-config
+      - ca-certificates
+      - curl
+    state: present
+    update_cache: true
+
+- name: Ensure ~/.local/bin exists
+  ansible.builtin.file:
+    path: "{{ getent_passwd[devtools_target_user][4] }}/.local/bin"
+    state: directory
+    mode: "0755"
+    owner: "{{ devtools_target_user }}"
+    group: "{{ devtools_target_user }}"
+
+- name: Remove user tree-sitter-cli directory
+  ansible.builtin.file:
+    path: "{{ getent_passwd[devtools_target_user][4] }}/.local/lib/node_modules/tree-sitter-cli"
+    state: absent
+
+- name: Remove user tree-sitter symlink
+  ansible.builtin.file:
+    path: "{{ getent_passwd[devtools_target_user][4] }}/.local/bin/tree-sitter"
+    state: absent
+
+- name: Remove system-wide tree-sitter symlink
+  ansible.builtin.file:
+    path: /usr/local/bin/tree-sitter
+    state: absent
+
+- name: Install rustup (user-local)
+  ansible.builtin.command: >
+    bash -lc "curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal"
+  become: false
+  environment:
+    HOME: "{{ getent_passwd[devtools_target_user][4] }}"
+    CARGO_HOME: "{{ getent_passwd[devtools_target_user][4] }}/.local/cargo"
+    RUSTUP_HOME: "{{ getent_passwd[devtools_target_user][4] }}/.local/rustup"
+  args:
+    creates: "{{ getent_passwd[devtools_target_user][4] }}/.local/cargo/bin/rustup"
+
+- name: Install Rust toolchain
+  ansible.builtin.command: >
+    {{ getent_passwd[devtools_target_user][4] }}/.local/cargo/bin/rustup toolchain install 1.84.0
+  become: false
+  environment:
+    HOME: "{{ getent_passwd[devtools_target_user][4] }}"
+    CARGO_HOME: "{{ getent_passwd[devtools_target_user][4] }}/.local/cargo"
+    RUSTUP_HOME: "{{ getent_passwd[devtools_target_user][4] }}/.local/rustup"
+  args:
+    creates: "{{ getent_passwd[devtools_target_user][4] }}/.local/rustup/toolchains/1.84.0-x86_64-unknown-linux-gnu"
+
+- name: Set Rust toolchain default
+  ansible.builtin.command: >
+    {{ getent_passwd[devtools_target_user][4] }}/.local/cargo/bin/rustup default 1.84.0
+  become: false
+  environment:
+    HOME: "{{ getent_passwd[devtools_target_user][4] }}"
+    CARGO_HOME: "{{ getent_passwd[devtools_target_user][4] }}/.local/cargo"
+    RUSTUP_HOME: "{{ getent_passwd[devtools_target_user][4] }}/.local/rustup"
+  changed_when: false
+
+- name: Install tree-sitter CLI from source with cargo
+  ansible.builtin.command: >
+    {{ getent_passwd[devtools_target_user][4] }}/.local/cargo/bin/cargo
+    install --root "{{ getent_passwd[devtools_target_user][4] }}/.local"
+    tree-sitter-cli --version 0.24.7 --locked
+  become: false
+  environment:
+    HOME: "{{ getent_passwd[devtools_target_user][4] }}"
+    CARGO_HOME: "{{ getent_passwd[devtools_target_user][4] }}/.local/cargo"
+    RUSTUP_HOME: "{{ getent_passwd[devtools_target_user][4] }}/.local/rustup"
+    PATH: "{{ getent_passwd[devtools_target_user][4] }}/.local/bin:{{ getent_passwd[devtools_target_user][4] }}/.local/cargo/bin:{{ ansible_env.PATH }}"
+  args:
+    creates: "{{ getent_passwd[devtools_target_user][4] }}/.local/bin/tree-sitter"
+
+- name: Ensure ~/.local/bin is on PATH for bash
+  ansible.builtin.lineinfile:
+    path: "{{ getent_passwd[devtools_target_user][4] }}/.bashrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    regexp: '^export PATH="\$HOME/\.local/bin:\$PATH"$'
+    insertafter: EOF
+    create: true
+    owner: "{{ devtools_target_user }}"
+    group: "{{ devtools_target_user }}"
+    mode: "0644"
+
+- name: Ensure ~/.local/cargo/bin is on PATH for bash
+  ansible.builtin.lineinfile:
+    path: "{{ getent_passwd[devtools_target_user][4] }}/.bashrc"
+    line: 'export PATH="$HOME/.local/cargo/bin:$PATH"'
+    regexp: '^export PATH="\$HOME/\.local/cargo/bin:\$PATH"$'
+    insertafter: EOF
+    create: true
+    owner: "{{ devtools_target_user }}"
+    group: "{{ devtools_target_user }}"
+    mode: "0644"

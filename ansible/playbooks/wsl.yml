@@ -6,3 +6,5 @@
     - role: common
     - role: git
     - role: shell
+    - role: devtools
+    - role: neovim

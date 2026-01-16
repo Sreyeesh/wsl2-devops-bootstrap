@@ -1,8 +1,6 @@
 # Backlog
 
 ## Next
-- Add a devtools role to install optional CLIs (terraform, kubectl, awscli, azure-cli) behind feature flags.
-- Add a bootstrap script that installs Ansible and runs the playbook with sensible defaults.
 - Ensure main stays stable, then create a long-lived dev branch for ongoing changes.
 - Add ansible-lint and a minimal CI workflow to validate idempotency and style.
 - Document variables and profiles (minimal vs full) in README.
@@ -14,3 +12,7 @@
 - Add a role to manage shell aliases and prompt tweaks (small, no frameworks).
 - Add a healthcheck summary mode (machine-readable JSON output).
 - Add Molecule tests for roles.
+
+## Done
+- Add a devtools role to install optional CLIs (terraform, kubectl, awscli, azure-cli) behind feature flags.
+- Add a bootstrap script that installs Ansible and runs the playbook with sensible defaults.

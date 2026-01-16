@@ -22,6 +22,16 @@
     state: present
     update_cache: true
 
+- name: Install optional CLI tools
+  ansible.builtin.apt:
+    name:
+      - "{{ 'terraform' if devtools_install_terraform else omit }}"
+      - "{{ 'kubectl' if devtools_install_kubectl else omit }}"
+      - "{{ 'awscli' if devtools_install_awscli else omit }}"
+      - "{{ 'azure-cli' if devtools_install_azure_cli else omit }}"
+    state: present
+  when: devtools_install_terraform or devtools_install_kubectl or devtools_install_awscli or devtools_install_azure_cli
+
 - name: Ensure ~/.local/bin exists
   ansible.builtin.file:
     path: "{{ getent_passwd[devtools_target_user][4] }}/.local/bin"

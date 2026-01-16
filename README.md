@@ -36,6 +36,7 @@ python3 scripts/wsl_healthcheck.py
 - Sets global Git defaults (user.name, user.email, default branch)
 - Ensures `~/bin` exists and is on PATH for bash
 - Installs Node.js, npm, and the tree-sitter CLI
+- Optional devtools (terraform, kubectl, awscli, azure-cli) via role flags
 - Installs Neovim, adds a starter config, and sets `EDITOR`/`VISUAL`
 - Installs Zsh, Oh My Zsh, and powerlevel10k
 

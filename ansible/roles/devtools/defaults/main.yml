@@ -1,0 +1,5 @@
+---
+devtools_install_terraform: false
+devtools_install_kubectl: false
+devtools_install_awscli: false
+devtools_install_azure_cli: false

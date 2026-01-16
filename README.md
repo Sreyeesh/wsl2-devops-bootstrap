@@ -30,7 +30,7 @@ python3 -m pip install --user ansible
 ansible-playbook ansible/playbooks/wsl.yml
 ```
 
-3) Run the healthcheck:
+4) Run the healthcheck:
 
 ```bash
 python3 scripts/wsl_healthcheck.py
@@ -45,6 +45,41 @@ python3 scripts/wsl_healthcheck.py
 - Optional devtools (terraform, kubectl, awscli, azure-cli) via role flags
 - Installs Neovim, adds a starter config, and sets `EDITOR`/`VISUAL`
 - Installs Zsh, Oh My Zsh, and powerlevel10k
+- Hardens SSH client defaults and pins known_hosts entries
+
+## Profiles
+
+- Minimal (baseline packages + git + shell path):
+
+```bash
+ansible-playbook ansible/playbooks/wsl.yml --tags minimal
+```
+
+- Full (default):
+
+```bash
+ansible-playbook ansible/playbooks/wsl.yml
+```
+
+## Variables
+
+- Optional devtools:
+
+```bash
+ansible-playbook ansible/playbooks/wsl.yml \
+  -e devtools_install_terraform=true \
+  -e devtools_install_kubectl=true \
+  -e devtools_install_awscli=true \
+  -e devtools_install_azure_cli=true
+```
+
+- SSH hardening:
+
+```bash
+ansible-playbook ansible/playbooks/wsl.yml \
+  -e ssh_hardening_enable_client_config=true \
+  -e 'ssh_hardening_known_hosts=[{"name":"github.com","key":"github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA..."}]'
+```
 
 ## Project Layout
 
@@ -55,6 +90,7 @@ python3 scripts/wsl_healthcheck.py
 - `ansible/roles/devtools` : developer tools (nodejs, npm, tree-sitter-cli)
 - `ansible/roles/neovim` : Neovim install and config
 - `ansible/roles/zsh` : Zsh + Oh My Zsh + powerlevel10k
+- `ansible/roles/ssh_hardening` : SSH client hardening and known_hosts pinning
 - `scripts/wsl_healthcheck.py` : tool availability checks
 
 ## Notes

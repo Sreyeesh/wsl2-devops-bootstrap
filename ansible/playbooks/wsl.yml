@@ -4,8 +4,26 @@
   become: true
   roles:
     - role: common
+      tags:
+        - minimal
+        - full
     - role: git
+      tags:
+        - minimal
+        - full
     - role: shell
+      tags:
+        - minimal
+        - full
     - role: devtools
+      tags:
+        - full
     - role: neovim
+      tags:
+        - full
     - role: zsh
+      tags:
+        - full
+    - role: ssh_hardening
+      tags:
+        - full

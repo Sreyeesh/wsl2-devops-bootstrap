@@ -35,10 +35,10 @@
     repo: https://github.com/romkatv/powerlevel10k.git
     dest: "{{ getent_passwd[zsh_target_user][4] }}/.oh-my-zsh/custom/themes/powerlevel10k"
     version: v1.20.0
-  register: p10k_install
+  register: zsh_p10k_install
   retries: 3
   delay: 5
-  until: p10k_install is succeeded
+  until: zsh_p10k_install is succeeded
   when: not ansible_check_mode
   become: false
   environment:
